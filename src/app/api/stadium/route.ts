@@ -222,37 +222,68 @@ function isValidLanguage(lang: string): lang is SupportedLanguage {
 
 // ─── Route Handlers ────────────────────────────────────────────────────────────
 
+interface ParseRequestResult {
+  readonly error: string | null;
+  readonly apiRequest: StadiumApiRequest | null;
+}
+
+/**
+ * Validates request payload properties and translates language defaults.
+ * Retains absolute flat execution path profile.
+ */
+function parseAndValidateRequest(body: Record<string, unknown>): ParseRequestResult {
+  const action = body.action;
+  const venueId = body.venueId;
+  const language = body.language;
+
+  const isInvalidAction = typeof action !== "string" || !(action in ACTION_HANDLERS);
+  if (isInvalidAction) {
+    return {
+      error: `Invalid action. Valid actions: ${Object.keys(ACTION_HANDLERS).join(", ")}`,
+      apiRequest: null,
+    };
+  }
+
+  const isInvalidVenue = typeof venueId !== "string";
+  if (isInvalidVenue) {
+    return {
+      error: "venueId is required and must be a string",
+      apiRequest: null,
+    };
+  }
+
+  const langCode = typeof language === "string" && isValidLanguage(language)
+    ? language
+    : ("en" as SupportedLanguage);
+
+  const apiRequest: StadiumApiRequest = {
+    action: action as StadiumApiAction,
+    venueId: venueId as string,
+    language: langCode,
+    payload: (body.payload ?? { action }) as StadiumApiRequest["payload"],
+  };
+
+  return {
+    error: null,
+    apiRequest,
+  };
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body: unknown = await request.json();
 
-    // Validate required fields
+    // Validate request structure is correct object
     if (!body || typeof body !== "object") {
       return errorResponse("Request body must be a JSON object");
     }
 
-    const reqBody = body as Record<string, unknown>;
-
-    if (typeof reqBody.action !== "string" || !(reqBody.action in ACTION_HANDLERS)) {
-      return errorResponse(`Invalid action. Valid actions: ${Object.keys(ACTION_HANDLERS).join(", ")}`);
+    const { error, apiRequest } = parseAndValidateRequest(body as Record<string, unknown>);
+    if (error || !apiRequest) {
+      return errorResponse(error ?? "Invalid request parameters");
     }
 
-    if (typeof reqBody.venueId !== "string") {
-      return errorResponse("venueId is required and must be a string");
-    }
-
-    const language = typeof reqBody.language === "string" && isValidLanguage(reqBody.language)
-      ? reqBody.language
-      : "en" as SupportedLanguage;
-
-    const apiRequest: StadiumApiRequest = {
-      action: reqBody.action as StadiumApiAction,
-      venueId: reqBody.venueId as string,
-      language,
-      payload: (reqBody.payload ?? { action: reqBody.action }) as StadiumApiRequest["payload"],
-    };
-
-    // Dispatch to handler via lookup — zero branching
+    // Dispatch to handler via lookup map — zero branching
     const handler = ACTION_HANDLERS[apiRequest.action];
     return await handler(apiRequest);
   } catch {

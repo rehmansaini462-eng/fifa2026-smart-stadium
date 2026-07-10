@@ -589,6 +589,57 @@ export default function StadiumDashboard() {
   const [newIncidentDesc, setNewIncidentDesc] = useState<string>("");
   const [newIncidentLocation, setNewIncidentLocation] = useState<string>("");
 
+  // ─── Visual Confirmation & Activity Log Stream States ──────────────────────
+  const [incidentFeedback, setIncidentFeedback] = useState<string | null>(null);
+  const [carbonFeedback, setCarbonFeedback] = useState<string | null>(null);
+  const [navFeedback, setNavFeedback] = useState<string | null>(null);
+  const [backgroundLogs, setBackgroundLogs] = useState<readonly string[]>(() => {
+    const mockEvents = [
+      "Fan entered via Gate A",
+      "Concession 3 wait time updated: 5 mins",
+      "Solar panel output: 142 kW",
+      "Metro Shuttle Arrival in 3 mins",
+      "Wheelchair ramp gate sensor: active",
+      "Section 104 occupancy reached 82%",
+      "Security patrol checked zone 12",
+      "Waste diversion rate updated to 88.5%",
+      "Baggage scanner at Gate B: operating normally",
+      "Weather report: Clear, 22°C",
+      "Staff rotation check completed for Level 2",
+    ];
+    const initialLogs: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      const time = new Date(Date.now() - (5 - i) * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const ev = mockEvents[Math.floor(Math.random() * mockEvents.length)];
+      initialLogs.unshift(`[${time}] ${ev}`);
+    }
+    return initialLogs;
+  });
+
+  useEffect(() => {
+    const mockEvents = [
+      "Fan entered via Gate A",
+      "Concession 3 wait time updated: 5 mins",
+      "Solar panel output: 142 kW",
+      "Metro Shuttle Arrival in 3 mins",
+      "Wheelchair ramp gate sensor: active",
+      "Section 104 occupancy reached 82%",
+      "Security patrol checked zone 12",
+      "Waste diversion rate updated to 88.5%",
+      "Baggage scanner at Gate B: operating normally",
+      "Weather report: Clear, 22°C",
+      "Staff rotation check completed for Level 2",
+    ];
+
+    const interval = setInterval(() => {
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const ev = mockEvents[Math.floor(Math.random() * mockEvents.length)];
+      setBackgroundLogs((prev) => [`[${time}] ${ev}`, ...prev.slice(0, 14)]);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const t = (key: keyof typeof LOCALIZED_DICT): string => {
     return LOCALIZED_DICT[key][selectedLang] ?? LOCALIZED_DICT[key].en;
   };
@@ -866,6 +917,8 @@ export default function StadiumDashboard() {
       const data: StadiumApiResponse<{ route: NavigationRoute }> = await res.json();
       if (data.success && data.data) {
         setNavRoute(data.data.route);
+        setNavFeedback("Route path wayfinding generated successfully with accessibility settings!");
+        setTimeout(() => setNavFeedback(null), 4000);
       }
     } catch {
       console.error("Navigation error");
@@ -877,6 +930,8 @@ export default function StadiumDashboard() {
     const driveFactor = 0.192; // baseline drive-alone car
     const saved = (driveFactor - modeFactor) * userTransitKm;
     setUserCarbonSaved(parseFloat(saved.toFixed(2)));
+    setCarbonFeedback(`Carbon Savings re-calculated successfully! (${parseFloat(saved.toFixed(2))} kg CO2 saved)`);
+    setTimeout(() => setCarbonFeedback(null), 4000);
   };
 
   const handleReportIncident = (e: React.FormEvent) => {
@@ -898,6 +953,8 @@ export default function StadiumDashboard() {
     setOperationsIncidents((prev) => [newInc, ...prev]);
     setNewIncidentDesc("");
     setNewIncidentLocation("");
+    setIncidentFeedback("Incident reported successfully! Operations ticket dispatched.");
+    setTimeout(() => setIncidentFeedback(null), 4000);
   };
 
   if (isLoading) {
@@ -988,6 +1045,18 @@ export default function StadiumDashboard() {
                 </button>
               ))}
             </nav>
+
+            {/* Live Operations Telemetry Stream */}
+            <div className="live-stream-panel glass-card" aria-label="Simulated real-time background logs">
+              <h3>📡 Live Telemetry Stream</h3>
+              <div className="log-scroll-box" role="log" aria-live="polite">
+                {backgroundLogs.map((log, index) => (
+                  <div key={index} className="log-entry">
+                    <span>{log}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </aside>
 
           {/* Active Interactive Module Panel */}
@@ -1129,6 +1198,12 @@ export default function StadiumDashboard() {
                 <h2>{t("navTitle")}</h2>
                 <p className="panel-desc">{t("navDesc")}</p>
 
+                {navFeedback && (
+                  <div className="feedback-banner nav-banner" role="status">
+                    <span>✨ {navFeedback}</span>
+                  </div>
+                )}
+
                 <div className="nav-routes-picker glass-card">
                   <div className="picker-row">
                     <div className="picker-field">
@@ -1167,7 +1242,11 @@ export default function StadiumDashboard() {
                         type="checkbox"
                         checked={navRequireAccessible}
                         aria-label="Filter routes for wheelchair accessibility"
-                        onChange={(e) => setNavRequireAccessible(e.target.checked)}
+                        onChange={(e) => {
+                          setNavRequireAccessible(e.target.checked);
+                          setNavFeedback(e.target.checked ? "Wheelchair Routing Constraints Applied! Click calculate to resolve path." : "Standard Routing Constraints Restored!");
+                          setTimeout(() => setNavFeedback(null), 4000);
+                        }}
                       />
                       {t("wheelchairOnly")} ♿
                     </label>
@@ -1337,6 +1416,12 @@ export default function StadiumDashboard() {
                 <h2>{t("sustainTitle")}</h2>
                 <p className="panel-desc">{t("sustainDesc")}</p>
 
+                {carbonFeedback && (
+                  <div className="feedback-banner" role="status">
+                    <span>✨ {carbonFeedback}</span>
+                  </div>
+                )}
+
                 <div className="sustainability-metrics-grid" role="region" aria-label="Live stadium sustainability indices">
                   {sustainabilityMetrics.map((met) => (
                     <div key={met.kind} className="metric-card glass-card" role="article">
@@ -1413,6 +1498,12 @@ export default function StadiumDashboard() {
               >
                 <h2>{t("opsTitle")}</h2>
                 <p className="panel-desc">{t("opsDesc")}</p>
+
+                {incidentFeedback && (
+                  <div className="feedback-banner incident-banner" role="status">
+                    <span>✨ {incidentFeedback}</span>
+                  </div>
+                )}
 
                 <div className="ops-split">
                   {/* Reported Incidents */}
