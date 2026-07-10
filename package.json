@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "node ./node_modules/eslint/bin/eslint.js .",
+    "test": "node ./node_modules/tsx/dist/cli.mjs --test src/__tests__/stadium.test.ts"
   },
   "dependencies": {
     "next": "16.2.10",
@@ -19,6 +20,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "tsx": "^4.23.0",
     "typescript": "^5"
   }
 }

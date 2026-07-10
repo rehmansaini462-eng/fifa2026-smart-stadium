@@ -53,23 +53,7 @@ const INTENT_RULES: readonly IntentRule[] = [
       de: "⚠️ Notfallprotokoll aktiviert. Bitte bleiben Sie ruhig. Ein Stadion-Operationskoordinator und ein medizinisches Team werden zu Ihnen geschickt.",
       ja: "⚠️ 緊急プロトコルが有効化されました。落ち着いてください。スタジアム運営コーディネーターと医療チームが急行しています。",
       ko: "⚠️ 비상 프로토콜이 활성화되었습니다. 진정해 주십시오. 경기장 운영 코디네이터와 의료진이 현장으로 파견되고 있습니다.",
-      zh: "⚠️ 紧急协议已启动。请保持冷静。体育场运营协调员和医疗团队正赶往您所在的区域。",
-    },
-  },
-  {
-    patterns: [/seat/i, /gate/i, /restroom/i, /find/i, /where/i, /map/i, /route/i, /exit/i, /walk/i],
-    intent: "navigation",
-    defaultResponse: {
-      en: "🗺️ Navigation assist: You can find all entrances, concessions, and seats on the interactive map above.",
-      es: "🗺️ Asistencia de navegación: Puede encontrar todas las entradas, concesiones y asientos en el mapa interactivo de arriba.",
-      fr: "🗺️ Assistant de navigation: Vous pouvez trouver toutes les entrées, stands et sièges sur la carte interactive ci-dessus.",
-      pt: "🗺️ Assistente de navegação: Você pode encontrar todas as entradas, concessões e assentos no mapa interativo acima.",
-      ar: "🗺️ مساعد الملاحة: يمكنك العثور على جميع المداخل والمصنفات والمقاعد على الخريطة التفاعلية أعلاه.",
-      hi: "🗺️ नेविगेशन सहायता: आप ऊपर दिए गए इंटरैक्टिव मानचित्र पर सभी प्रवेश द्वार, रियायतें और सीटें पा सकते हैं।",
-      de: "🗺️ Navigationshilfe: Alle Eingänge, Kioske und Plätze finden Sie auf der interaktiven Karte oben.",
-      ja: "🗺️ ナビゲーション支援：上のインタラクティブマップで、すべての入口、売店、座席を確認できます。",
-      ko: "🗺️ 길 찾기 지원: 위의 대화형 지도에서 모든 출입구, 매점, 좌석 위치를 확인하실 수 있습니다.",
-      zh: "🗺️ 导航辅助：您可以在上方的交互式地图中找到所有的入口、餐饮点和座位位置。",
+      zh: "⚠️ 紧急协议已启动。请保持冷静。体育场运营协调员和医疗团队正赶往您所在的区域.",
     },
   },
   {
@@ -85,7 +69,7 @@ const INTENT_RULES: readonly IntentRule[] = [
       de: "👥 Die Crowd-Intelligenz meldet moderate bis kurze Wartezeiten an den Toren A & B. Siehe das Crowd-Modul für Live-Heatmaps.",
       ja: "👥 混雑状況分析によると、ゲートAおよびBの待ち時間は短い〜普通です。リアルタイムヒートマップは混雑状況モジュールをご確認ください。",
       ko: "👥 실시간 인파 분석 결과, 게이트 A와 B의 대기 시간은 보통 혹은 원활합니다. 혼잡도 대시보드에서 실시간 열지도를 확인하세요.",
-      zh: "zh: 👥 人流智能分析显示 A 门和 B 门的等待时间为中等至偏低。请查看人流状态模块以获取实时区域热力图。",
+      zh: "👥 人流智能分析显示 A 门和 B 门的等待时间为中等至偏低。请查看人流状态模块以获取实时区域热力图。",
     },
   },
   {
@@ -97,7 +81,7 @@ const INTENT_RULES: readonly IntentRule[] = [
       fr: "🚇 L'optimiseur de transport suggère de prendre le métro aujourd'hui. Les métros circulent toutes les 3 minutes.",
       pt: "🚇 O otimizador de trânsito sugere pegar o metrô hoje. Os trens circulam a cada 3 minutos.",
       ar: "🚇 يقترح محسن النقل استخدام المترو اليوم. تعمل القطارات كل 3 دقائق. يبلغ متوسط أوقات الانتظار 12 دقيقة.",
-      hi: "🚇 ट्रांजिट ऑप्टिमाइज़र आज मेट्रो लेने का सुझाव देता है। ट्रेनें हर 3 मिनट में चलती हैं। राइडशेयर प्रतीक्षा समय लगभग 12 मिनट है।",
+      hi: "🚇 ट्रांजित ऑप्टिमाइज़र आज मेट्रो लेने का सुझाव देता है। ट्रेनें हर 3 मिनट में चलती हैं। राइडशेयर प्रतीक्षा समय लगभग 12 मिनट है।",
       de: "🚇 Der Transit-Optimierer empfiehlt heute die U-Bahn. Züge fahren alle 3 Minuten. Rideshare-Wartezeit liegt bei ca. 12 Minuten.",
       ja: "🚇 公共交通機関最適化エンジンは地下鉄の利用を推奨しています。電車は3分間隔で運行。配車サービスの待ち時間は約12分です。",
       ko: "🚇 교통 최적화 엔진에 따라 오늘은 지하철 이용을 권장합니다. 열차는 3분 간격으로 운행됩니다. 우버/리프트 대기 시간은 평균 12분입니다.",
@@ -136,6 +120,22 @@ const INTENT_RULES: readonly IntentRule[] = [
       zh: "🌍 绿色环保：本场馆今日 100% 采用可再生能源运行。请使用分类垃圾桶帮助我们实现 90% 的垃圾分流目标。",
     },
   },
+  {
+    patterns: [/seat/i, /gate/i, /restroom/i, /find/i, /where/i, /map/i, /route/i, /exit/i, /walk/i],
+    intent: "navigation",
+    defaultResponse: {
+      en: "🗺️ Navigation assist: You can find all entrances, concessions, and seats on the interactive map above.",
+      es: "🗺️ Asistencia de navegación: Puede encontrar todas las entradas, concesiones y asientos en el mapa interactivo de arriba.",
+      fr: "🗺️ Assistant de navigation: Vous pouvez trouver toutes les entrées, stands et sièges sur la carte interactive ci-dessus.",
+      pt: "🗺️ Assistente de navegação: Você pode encontrar todas as entradas, concessões e assentos no mapa interativo acima.",
+      ar: "🗺️ مساعد الملاحة: يمكنك العثور على جميع المداخل والمصنفات والمقاعد على الخريطة التفاعلية أعلاه.",
+      hi: "🗺️ नेविगेशन सहायता: आप ऊपर दिए गए इंटरैक्टिव मानचित्र पर सभी प्रवेश द्वार, रियायतें और सीटें पा सकते हैं।",
+      de: "🗺️ Navigationshilfe: Alle Eingänge, Kioske und Plätze finden Sie auf der interaktiven Karte oben.",
+      ja: "🗺️ ナビゲーション支援：上のインタラクティブマップで、すべての入口、売店、座席を確認できます。",
+      ko: "🗺️ 길 찾기 지원: 위의 대화형 지도에서 모든 출입구, 매점, 좌석 위치를 확인하실 수 있습니다.",
+      zh: "🗺️ 导航辅助：您可以在上方的交互式地图中找到所有的入口、餐饮点和座位位置。",
+    },
+  },
 ];
 
 const DEFAULT_FALLBACK: Record<SupportedLanguage, string> = {
@@ -168,11 +168,37 @@ interface DynamicContext {
   readonly query: string;
 }
 
+// ─── Simple Memory Cache Layer ────────────────────────────────────────────────
+interface CachedReply {
+  readonly reply: string;
+  readonly expiresAt: number;
+}
+
+const queryCache = new Map<string, CachedReply>();
+const CACHE_TTL_MS = 60000; // 60 seconds Cache Time-To-Live
+
 /**
  * High-efficiency prompt mapping. Resolves query contextual info directly.
  * Zero cyclomatic complexity via key lookup object dictionary dispatch.
+ * Optimized with a Dynamic Memoization Cache layer to guarantee O(1) retrieval for duplicate tokens.
  */
 export async function generateAiReply(context: DynamicContext, history: readonly ChatMessage[]): Promise<string> {
+  const cacheKey = `${context.venueId}:${context.language}:${context.query.trim().toLowerCase()}:${history.length}`;
+  const now = Date.now();
+  const cached = queryCache.get(cacheKey);
+  if (cached && cached.expiresAt > now) {
+    return cached.reply;
+  }
+
+  const reply = await generateReplyInternal(context, history);
+  queryCache.set(cacheKey, { reply, expiresAt: now + CACHE_TTL_MS });
+  return reply;
+}
+
+/**
+ * Internal logic for generating the AI response from Gemini or rule fallback.
+ */
+async function generateReplyInternal(context: DynamicContext, history: readonly ChatMessage[]): Promise<string> {
   const venue = FIFA_2026_VENUES.find((v) => v.id === context.venueId) ?? FIFA_2026_VENUES[0];
   const intent = matchQueryIntent(context.query);
   const lang = context.language;
