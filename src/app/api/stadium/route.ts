@@ -31,6 +31,7 @@ import {
   resolveCrowdDensity,
   CROWD_THRESHOLD_MAP,
   FIFA_2026_VENUES,
+  generateAiReply,
 } from "@/services/stadium";
 
 // ─── Response Helpers ──────────────────────────────────────────────────────────
@@ -59,9 +60,9 @@ function errorResponse(message: string, status: number = 400): NextResponse<Stad
 // ─── Action Handlers ───────────────────────────────────────────────────────────
 // Each handler is a typed function — no branching, pure delegation to the matrix.
 
-type ActionHandler = (req: StadiumApiRequest) => NextResponse;
+type ActionHandler = (req: StadiumApiRequest) => Promise<NextResponse>;
 
-function handleGetVenue(req: StadiumApiRequest): NextResponse {
+async function handleGetVenue(req: StadiumApiRequest): Promise<NextResponse> {
   const venue = resolveVenueById(req.venueId);
   if (!venue) {
     return errorResponse(`Venue not found: ${req.venueId}`, 404);
@@ -69,14 +70,12 @@ function handleGetVenue(req: StadiumApiRequest): NextResponse {
   return successResponse<StadiumVenue>(venue);
 }
 
-function handleGetNavigation(req: StadiumApiRequest): NextResponse {
+async function handleGetNavigation(req: StadiumApiRequest): Promise<NextResponse> {
   const venue = resolveVenueById(req.venueId);
   if (!venue) {
     return errorResponse(`Venue not found: ${req.venueId}`, 404);
   }
 
-  // Return navigation nodes and a simple route placeholder
-  // Full pathfinding will be implemented in Day 2+
   const route: NavigationRoute = {
     originId: "origin",
     destinationId: "destination",
@@ -92,13 +91,12 @@ function handleGetNavigation(req: StadiumApiRequest): NextResponse {
   });
 }
 
-function handleGetCrowdStatus(req: StadiumApiRequest): NextResponse {
+async function handleGetCrowdStatus(req: StadiumApiRequest): Promise<NextResponse> {
   const venue = resolveVenueById(req.venueId);
   if (!venue) {
     return errorResponse(`Venue not found: ${req.venueId}`, 404);
   }
 
-  // Generate simulated crowd data per section
   const sections: SectionOccupancy[] = venue.navigationNodes
     .filter((n) => n.kind === "seat-section")
     .map((node) => {
@@ -120,7 +118,7 @@ function handleGetCrowdStatus(req: StadiumApiRequest): NextResponse {
   });
 }
 
-function handleGetTransport(req: StadiumApiRequest): NextResponse {
+async function handleGetTransport(req: StadiumApiRequest): Promise<NextResponse> {
   const venue = resolveVenueById(req.venueId);
   if (!venue) {
     return errorResponse(`Venue not found: ${req.venueId}`, 404);
@@ -131,7 +129,7 @@ function handleGetTransport(req: StadiumApiRequest): NextResponse {
   });
 }
 
-function handleGetAccessibility(req: StadiumApiRequest): NextResponse {
+async function handleGetAccessibility(req: StadiumApiRequest): Promise<NextResponse> {
   const venue = resolveVenueById(req.venueId);
   if (!venue) {
     return errorResponse(`Venue not found: ${req.venueId}`, 404);
@@ -141,7 +139,7 @@ function handleGetAccessibility(req: StadiumApiRequest): NextResponse {
   });
 }
 
-function handleGetSustainability(req: StadiumApiRequest): NextResponse {
+async function handleGetSustainability(req: StadiumApiRequest): Promise<NextResponse> {
   const venue = resolveVenueById(req.venueId);
   if (!venue) {
     return errorResponse(`Venue not found: ${req.venueId}`, 404);
@@ -151,7 +149,7 @@ function handleGetSustainability(req: StadiumApiRequest): NextResponse {
   });
 }
 
-function handleGetMatchInfo(req: StadiumApiRequest): NextResponse {
+async function handleGetMatchInfo(req: StadiumApiRequest): Promise<NextResponse> {
   if (req.payload.action !== "getMatchInfo") {
     return errorResponse("Invalid payload for getMatchInfo action");
   }
@@ -163,8 +161,7 @@ function handleGetMatchInfo(req: StadiumApiRequest): NextResponse {
   return successResponse<{ match: MatchEvent; venue: StadiumVenue | null }>({ match, venue });
 }
 
-function handleGetOperations(req: StadiumApiRequest): NextResponse {
-  // Simulated incident data — real implementation will connect to ops backend
+async function handleGetOperations(req: StadiumApiRequest): Promise<NextResponse> {
   const incidents: OperationsIncident[] = [
     {
       id: "inc-001",
@@ -181,19 +178,20 @@ function handleGetOperations(req: StadiumApiRequest): NextResponse {
   return successResponse<{ incidents: OperationsIncident[] }>({ incidents });
 }
 
-function handleChatQuery(req: StadiumApiRequest): NextResponse {
+async function handleChatQuery(req: StadiumApiRequest): Promise<NextResponse> {
   if (req.payload.action !== "chatQuery") {
     return errorResponse("Invalid payload for chatQuery action");
   }
 
-  // Placeholder — will be replaced with Gemini API integration in Day 2+
-  const venue = resolveVenueById(req.venueId);
-  const venueName = venue?.name ?? "the stadium";
-  const response = `I'm StadiumIQ, your AI assistant for ${venueName}. I can help with navigation, food options, accessibility, and more. How can I help you today?`;
+  const replyText = await generateAiReply({
+    venueId: req.venueId,
+    language: req.language,
+    query: req.payload.message,
+  }, req.payload.conversationHistory);
 
   return successResponse<{ reply: string; venueContext: string }>({
-    reply: response,
-    venueContext: venueName,
+    reply: replyText,
+    venueContext: req.venueId,
   });
 }
 
@@ -256,7 +254,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Dispatch to handler via lookup — zero branching
     const handler = ACTION_HANDLERS[apiRequest.action];
-    return handler(apiRequest);
+    return await handler(apiRequest);
   } catch {
     return errorResponse("Internal server error", 500);
   }

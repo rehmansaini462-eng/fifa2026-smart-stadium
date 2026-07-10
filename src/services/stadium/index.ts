@@ -60,3 +60,8 @@ export {
   resolveVenuesByCountry,
   resolveLabel,
 } from "./operationMatrix";
+
+export {
+  matchQueryIntent,
+  generateAiReply,
+} from "./aiAgent";
