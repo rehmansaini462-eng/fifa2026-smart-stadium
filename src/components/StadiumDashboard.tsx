@@ -402,16 +402,18 @@ export default function StadiumDashboard() {
               key={langKey}
               id={`lang-btn-${langKey}`}
               className={`lang-chip ${selectedLang === langKey ? "active" : ""}`}
+              aria-label={`Switch language to ${conf.label}`}
+              aria-pressed={selectedLang === langKey}
               onClick={() => handleLangChange(langKey as SupportedLanguage)}
             >
-              <span>{conf.flagEmoji}</span> {conf.nativeLabel}
+              <span aria-hidden="true">{conf.flagEmoji}</span> {conf.nativeLabel}
             </button>
           ))}
         </div>
       </header>
 
       {/* ─── Controls ─────────────────────────────────────────────────────────── */}
-      <section className="dashboard-controls" aria-label="Global Controls">
+      <section className="dashboard-controls" aria-label="Venue Controls">
         <div className="venue-selector-box glass-card">
           <label htmlFor="venue-select" className="venue-label">
             Active World Cup Venue:
@@ -420,6 +422,7 @@ export default function StadiumDashboard() {
             id="venue-select"
             className="venue-dropdown"
             value={selectedVenueId}
+            aria-label="Select tournament stadium venue"
             onChange={(e) => handleVenueChange(e.target.value)}
           >
             {venues.map((v) => (
@@ -436,22 +439,25 @@ export default function StadiumDashboard() {
         <div className="dashboard-workspace">
           {/* Sidebar / Left Navigation */}
           <aside className="workspace-sidebar">
-            <div className="venue-brief glass-card">
+            <div className="venue-brief glass-card" aria-label="Selected Venue Information">
               <h3>{venueDetail.name}</h3>
               <p>📍 {venueDetail.city}</p>
               <p>🎟️ Capacity: {venueDetail.capacity.toLocaleString()}</p>
               <p>🕐 Timezone: {venueDetail.timeZone}</p>
             </div>
 
-            <nav className="module-nav" aria-label="Module Tabs">
+            <nav className="module-nav" role="tablist" aria-label="Operations Modules">
               {MODULE_CARDS.map((mod) => (
                 <button
                   key={mod.id}
                   id={`nav-tab-${mod.id}`}
+                  role="tab"
+                  aria-selected={activeModuleId === mod.id}
+                  aria-controls={`panel-${mod.id}`}
                   className={`nav-item glass-card ${activeModuleId === mod.id ? "active" : ""}`}
                   onClick={() => setActiveModuleId(mod.id)}
                 >
-                  <span className="nav-icon">{mod.icon}</span>
+                  <span className="nav-icon" aria-hidden="true">{mod.icon}</span>
                   <div className="nav-text">
                     <h4>{mod.title}</h4>
                     <span>{mod.status}</span>
@@ -462,17 +468,26 @@ export default function StadiumDashboard() {
           </aside>
 
           {/* Active Interactive Module Panel */}
-          <section className="workspace-panel glass-card" aria-label="Active Module Workspace">
+          <section
+            className="workspace-panel glass-card"
+            role="region"
+            aria-label="Operations workspace details"
+          >
             {/* 1. AI CONCIERGE CHAT MODULE */}
             {activeModuleId === "ai-concierge" && (
-              <div className="module-panel ai-concierge-panel">
+              <div
+                className="module-panel ai-concierge-panel"
+                role="tabpanel"
+                id="panel-ai-concierge"
+                aria-labelledby="nav-tab-ai-concierge"
+              >
                 <h2>🤖 Multilingual AI Concierge Assistant</h2>
                 <p className="panel-desc">Ask queries regarding seat wayfinding, accessibility support, parking lots, concessions wait times, or emergency protocols.</p>
 
-                <div className="chat-window">
+                <div className="chat-window" aria-live="polite" aria-label="Conversation messages history">
                   {chatMessages.map((msg, i) => (
-                    <div key={i} className={`chat-message ${msg.role}`}>
-                      <div className="msg-avatar">{msg.role === "assistant" ? "🤖" : "👤"}</div>
+                    <div key={i} className={`chat-message ${msg.role}`} role="document" aria-label={`${msg.role === "assistant" ? "AI Assistant" : "You"}: ${msg.content}`}>
+                      <div className="msg-avatar" aria-hidden="true">{msg.role === "assistant" ? "🤖" : "👤"}</div>
                       <div className="msg-bubble">
                         <p>{msg.content}</p>
                         <span className="msg-time">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -480,8 +495,8 @@ export default function StadiumDashboard() {
                     </div>
                   ))}
                   {isSendingChat && (
-                    <div className="chat-message assistant typing">
-                      <div className="msg-avatar">🤖</div>
+                    <div className="chat-message assistant typing" role="status" aria-label="AI assistant is typing a reply">
+                      <div className="msg-avatar" aria-hidden="true">🤖</div>
                       <div className="msg-bubble">
                         <div className="typing-loader">
                           <span></span><span></span><span></span>
@@ -492,11 +507,11 @@ export default function StadiumDashboard() {
                 </div>
 
                 {/* Quick replies based on matrix data */}
-                <div className="quick-replies">
-                  <button onClick={() => handleSendChat("Where is the nearest restroom?")} className="quick-reply-btn">🚻 Restrooms</button>
-                  <button onClick={() => handleSendChat("Are there elevators near Section 102?")} className="quick-reply-btn">♿ Elevators</button>
-                  <button onClick={() => handleSendChat("Which transport option should I take?")} className="quick-reply-btn">🚇 Transit suggestions</button>
-                  <button onClick={() => handleSendChat("Is there an active medical incident?")} className="quick-reply-btn">🚨 Medical Info</button>
+                <div className="quick-replies" aria-label="Quick stadium query templates">
+                  <button onClick={() => handleSendChat("Where is the nearest restroom?")} className="quick-reply-btn" aria-label="Query nearest restroom location">Restrooms 🚻</button>
+                  <button onClick={() => handleSendChat("Are there elevators near Section 102?")} className="quick-reply-btn" aria-label="Query elevator accessibility locations">Elevators ♿</button>
+                  <button onClick={() => handleSendChat("Which transport option should I take?")} className="quick-reply-btn" aria-label="Query public transport options">Transit 🚇</button>
+                  <button onClick={() => handleSendChat("Is there an active medical incident?")} className="quick-reply-btn" aria-label="Query venue safety incident status">Safety 🚨</button>
                 </div>
 
                 <div className="chat-input-bar">
@@ -505,10 +520,11 @@ export default function StadiumDashboard() {
                     type="text"
                     placeholder="Type stadium query..."
                     value={chatInput}
+                    aria-label="Stadium operations query text input field"
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") handleSendChat(); }}
                   />
-                  <button id="chat-send-btn" onClick={() => handleSendChat()} disabled={isSendingChat}>
+                  <button id="chat-send-btn" onClick={() => handleSendChat()} disabled={isSendingChat} aria-label="Submit query button">
                     Send 🚀
                   </button>
                 </div>
@@ -517,21 +533,34 @@ export default function StadiumDashboard() {
 
             {/* 2. CROWD INTELLIGENCE */}
             {activeModuleId === "crowd" && (
-              <div className="module-panel crowd-panel">
+              <div
+                className="module-panel crowd-panel"
+                role="tabpanel"
+                id="panel-crowd"
+                aria-labelledby="nav-tab-crowd"
+              >
                 <div className="panel-header-action">
                   <h2>👥 Live Crowd Intelligence Heatmaps</h2>
-                  <button onClick={() => fetchCrowdStatus(selectedVenueId)} disabled={isCrowdLoading} className="refresh-btn">
+                  <button
+                    id="crowd-refresh-btn"
+                    onClick={() => fetchCrowdStatus(selectedVenueId)}
+                    disabled={isCrowdLoading}
+                    className="refresh-btn"
+                    aria-label="Trigger manual refresh of live crowd status"
+                  >
                     🔄 {isCrowdLoading ? "Loading..." : "Refresh Live Data"}
                   </button>
                 </div>
                 <p className="panel-desc">Real-time attendance analysis and crowd density heatmap configurations per section.</p>
 
-                <div className="heatmap-layout-sim">
+                <div className="heatmap-layout-sim" role="region" aria-label="Interactive stadium section crowd density map">
                   <div className="stadium-graphic-map">
                     {crowdSections.map((sec) => (
                       <div
                         key={sec.sectionId}
                         className="section-cell"
+                        role="region"
+                        aria-label={`Seating Section ${sec.sectionId.toUpperCase().replace("-", " ")}: ${sec.occupancyPercent}% full, representing ${sec.currentCount} out of ${sec.maxCapacity} spectators`}
                         style={{
                           backgroundColor: sec.occupancyPercent > 90 ? "rgba(239, 68, 68, 0.6)" : sec.occupancyPercent > 70 ? "rgba(245, 158, 11, 0.6)" : "rgba(0, 212, 170, 0.4)",
                           borderColor: sec.occupancyPercent > 90 ? "#EF4444" : sec.occupancyPercent > 70 ? "#F59E0B" : "#00D4AA",
@@ -545,7 +574,7 @@ export default function StadiumDashboard() {
                   </div>
                 </div>
 
-                <div className="dashboard-stats-grid">
+                <div className="dashboard-stats-grid" role="region" aria-label="Attendance statistics metrics summary">
                   <div className="stat-card glass-card">
                     <h4>Highest Density Area</h4>
                     <p className="stat-val danger">
@@ -568,7 +597,12 @@ export default function StadiumDashboard() {
 
             {/* 3. SMART NAVIGATION */}
             {activeModuleId === "navigation" && (
-              <div className="module-panel nav-panel">
+              <div
+                className="module-panel nav-panel"
+                role="tabpanel"
+                id="panel-navigation"
+                aria-labelledby="nav-tab-navigation"
+              >
                 <h2>🧭 Smart Spatial Wayfinding & Routing</h2>
                 <p className="panel-desc">Resolve optimal paths across gates, seat sections, accessibility exits, and food concession courts.</p>
 
@@ -576,7 +610,12 @@ export default function StadiumDashboard() {
                   <div className="picker-row">
                     <div className="picker-field">
                       <label htmlFor="nav-origin-select">Start Point (Origin):</label>
-                      <select id="nav-origin-select" value={navOriginId} onChange={(e) => setNavOriginId(e.target.value)}>
+                      <select
+                        id="nav-origin-select"
+                        value={navOriginId}
+                        aria-label="Select start location origin node"
+                        onChange={(e) => setNavOriginId(e.target.value)}
+                      >
                         {venueDetail.navigationNodes.map((n) => (
                           <option key={n.id} value={n.id}>{n.label} ({n.kind.toUpperCase()})</option>
                         ))}
@@ -585,7 +624,12 @@ export default function StadiumDashboard() {
 
                     <div className="picker-field">
                       <label htmlFor="nav-dest-select">Destination:</label>
-                      <select id="nav-dest-select" value={navDestId} onChange={(e) => setNavDestId(e.target.value)}>
+                      <select
+                        id="nav-dest-select"
+                        value={navDestId}
+                        aria-label="Select destination target node"
+                        onChange={(e) => setNavDestId(e.target.value)}
+                      >
                         {venueDetail.navigationNodes.map((n) => (
                           <option key={n.id} value={n.id}>{n.label} ({n.kind.toUpperCase()})</option>
                         ))}
@@ -594,20 +638,29 @@ export default function StadiumDashboard() {
                   </div>
 
                   <div className="picker-options">
-                    <label className="checkbox-label">
+                    <label className="checkbox-label" htmlFor="nav-accessible-checkbox">
                       <input
+                        id="nav-accessible-checkbox"
                         type="checkbox"
                         checked={navRequireAccessible}
+                        aria-label="Filter routes for wheelchair accessibility"
                         onChange={(e) => setNavRequireAccessible(e.target.checked)}
                       />
                       Wheelchair Accessible Route Only ♿
                     </label>
-                    <button onClick={handleGenerateRoute} className="route-calc-btn">Calculate Route 📍</button>
+                    <button
+                      id="nav-calc-btn"
+                      onClick={handleGenerateRoute}
+                      className="route-calc-btn"
+                      aria-label="Calculate walking route coordinates"
+                    >
+                      Calculate Route 📍
+                    </button>
                   </div>
                 </div>
 
                 {navRoute && (
-                  <div className="route-result glass-card">
+                  <div className="route-result glass-card" role="region" aria-label="Route calculation details">
                     <h3>Optimal Path Calculated</h3>
                     <div className="route-metrics">
                       <span>🚶 Estimated Walk: <strong>{navRoute.totalWalkMinutes} minutes</strong></span>
@@ -615,11 +668,11 @@ export default function StadiumDashboard() {
                       <span>♿ Accessible Path: <strong>{navRoute.isAccessible ? "Yes" : "No"}</strong></span>
                     </div>
 
-                    <div className="path-timeline">
+                    <div className="path-timeline" role="list" aria-label="Route step sequence list">
                       {navRoute.nodeSequence.map((nodeId, idx) => {
                         const node = venueDetail.navigationNodes.find(n => n.id === nodeId);
                         return (
-                          <div key={idx} className="path-step">
+                          <div key={idx} className="path-step" role="listitem">
                             <span className="step-num">{idx + 1}</span>
                             <div className="step-info">
                               <h5>{node?.label ?? nodeId}</h5>
@@ -636,17 +689,22 @@ export default function StadiumDashboard() {
 
             {/* 4. ACCESSIBILITY HUB */}
             {activeModuleId === "accessibility" && (
-              <div className="module-panel access-panel">
+              <div
+                className="module-panel access-panel"
+                role="tabpanel"
+                id="panel-accessibility"
+                aria-labelledby="nav-tab-accessibility"
+              >
                 <h2>♿ Inclusive Accessibility Operations</h2>
                 <p className="panel-desc">Real-time status configurations of assistive features, companion seating plans, and sensory-friendly zones.</p>
 
-                <div className="accessibility-features-list">
+                <div className="accessibility-features-list" role="region" aria-label="Stadium accessibility accommodation services">
                   {accessibilityFeatures.map((feat) => {
                     const featureConfig = ACCESSIBILITY_FEATURE_CONFIG[feat.feature];
                     return (
-                      <div key={feat.feature} className="accessibility-card glass-card">
+                      <div key={feat.feature} className="accessibility-card glass-card" role="article">
                         <div className="card-top">
-                          <span className="feat-emoji">{featureConfig?.iconEmoji ?? "♿"}</span>
+                          <span className="feat-emoji" aria-hidden="true">{featureConfig?.iconEmoji ?? "♿"}</span>
                           <h3>{featureConfig?.localizedLabels[selectedLang] ?? feat.label}</h3>
                         </div>
                         <p>{feat.description}</p>
@@ -667,16 +725,27 @@ export default function StadiumDashboard() {
 
             {/* 5. TRANSPORTATION OPTIMIZER */}
             {activeModuleId === "transport" && (
-              <div className="module-panel transport-panel">
+              <div
+                className="module-panel transport-panel"
+                role="tabpanel"
+                id="panel-transport"
+                aria-labelledby="nav-tab-transport"
+              >
                 <div className="panel-header-action">
                   <h2>🚇 Real-Time Transportation & Parking</h2>
-                  <button onClick={() => fetchTransitStatus(selectedVenueId)} disabled={isTransportLoading} className="refresh-btn">
+                  <button
+                    id="transport-refresh-btn"
+                    onClick={() => fetchTransitStatus(selectedVenueId)}
+                    disabled={isTransportLoading}
+                    className="refresh-btn"
+                    aria-label="Refresh passenger transit and parking metrics data"
+                  >
                     🔄 Refresh Status
                   </button>
                 </div>
                 <p className="panel-desc">Live passenger throughput updates for Metro lines, shuttle buses, rideshare queues, and parking occupancy rates.</p>
 
-                <div className="transit-rows">
+                <div className="transit-rows" role="region" aria-label="Public Transit routes status summary">
                   <h3>Public Transit Operations</h3>
                   <div className="transit-grid">
                     {transitUpdates.map((tr) => {
@@ -684,7 +753,7 @@ export default function StadiumDashboard() {
                       return (
                         <div key={tr.routeId} className="transit-card glass-card">
                           <div className="transit-header">
-                            <span className="mode-icon">{config?.iconEmoji ?? "🚇"}</span>
+                            <span className="mode-icon" aria-hidden="true">{config?.iconEmoji ?? "🚇"}</span>
                             <h4>{tr.routeName}</h4>
                           </div>
                           <div className="transit-body">
@@ -706,13 +775,13 @@ export default function StadiumDashboard() {
                   </div>
                 </div>
 
-                <div className="parking-rows">
+                <div className="parking-rows" role="region" aria-label="Parking lots vehicle limits status summary">
                   <h3>Parking Lot Capacities</h3>
                   <div className="parking-grid">
                     {parkingLots.map((lot) => (
                       <div key={lot.id} className="parking-card glass-card">
                         <div className="parking-header">
-                          <span className="park-icon">🅿️</span>
+                          <span className="park-icon" aria-hidden="true">🅿️</span>
                           <h4>{lot.name}</h4>
                         </div>
                         <div className="parking-body">
@@ -736,13 +805,18 @@ export default function StadiumDashboard() {
 
             {/* 6. SUSTAINABILITY TRACKER */}
             {activeModuleId === "sustainability" && (
-              <div className="module-panel sustainability-panel">
+              <div
+                className="module-panel sustainability-panel"
+                role="tabpanel"
+                id="panel-sustainability"
+                aria-labelledby="nav-tab-sustainability"
+              >
                 <h2>🌍 Green Stadium Resource metrics</h2>
                 <p className="panel-desc">Visualizing waste diversion percentages, solar generation levels, and tracking ecological footprints during matchday.</p>
 
-                <div className="sustainability-metrics-grid">
+                <div className="sustainability-metrics-grid" role="region" aria-label="Live stadium sustainability indices">
                   {sustainabilityMetrics.map((met) => (
-                    <div key={met.kind} className="metric-card glass-card">
+                    <div key={met.kind} className="metric-card glass-card" role="article">
                       <h4>{met.label}</h4>
                       <div className="metric-vals">
                         <span className="curr-val">{met.currentValue.toLocaleString()}</span>
@@ -762,27 +836,43 @@ export default function StadiumDashboard() {
                   ))}
                 </div>
 
-                <div className="carbon-footprint-calc glass-card">
+                <div className="carbon-footprint-calc glass-card" role="region" aria-label="Carbon emission calculator">
                   <h3>🌳 Calculate Carbon Emissions Savings (Tripmeter)</h3>
                   <p>Input your travel distance to the stadium and calculate how much carbon you save by avoiding driving alone.</p>
                   <div className="calc-row">
+                    <label htmlFor="carbon-distance-input" className="sr-only" style={{ display: 'none' }}>Travel distance in km</label>
                     <input
+                      id="carbon-distance-input"
                       type="number"
                       value={userTransitKm}
+                      aria-label="Travel distance to stadium in kilometers"
                       onChange={(e) => setUserTransitKm(Number(e.target.value))}
                       placeholder="Travel Distance (km)"
                       min="1"
                     />
-                    <select value={userTransitMode} onChange={(e) => setUserTransitMode(e.target.value)}>
+                    <label htmlFor="carbon-transport-mode-select" className="sr-only" style={{ display: 'none' }}>Transport mode select</label>
+                    <select
+                      id="carbon-transport-mode-select"
+                      value={userTransitMode}
+                      aria-label="Select mode of transport used"
+                      onChange={(e) => setUserTransitMode(e.target.value)}
+                    >
                       <option value="metro">Metro/Subway 🚇</option>
                       <option value="bus">Shuttle Bus 🚌</option>
                       <option value="bicycle">Bicycle 🚲</option>
                       <option value="walking">Walking 🚶</option>
                     </select>
-                    <button onClick={calculateUserCarbon} className="calc-btn">Calculate Savings</button>
+                    <button
+                      id="carbon-calc-btn"
+                      onClick={calculateUserCarbon}
+                      className="calc-btn"
+                      aria-label="Calculate carbon emissions savings value"
+                    >
+                      Calculate Savings
+                    </button>
                   </div>
                   {userCarbonSaved > 0 && (
-                    <div className="calc-result">
+                    <div className="calc-result" role="status" aria-live="polite">
                       <p>✨ You saved <strong>{userCarbonSaved} kg CO₂</strong> compared to driving a standard fossil-fueled car!</p>
                     </div>
                   )}
@@ -792,21 +882,26 @@ export default function StadiumDashboard() {
 
             {/* 7. OPERATIONS COMMAND CENTER */}
             {activeModuleId === "operations" && (
-              <div className="module-panel operations-panel">
+              <div
+                className="module-panel operations-panel"
+                role="tabpanel"
+                id="panel-operations"
+                aria-labelledby="nav-tab-operations"
+              >
                 <h2>🛡️ Operations Incident Dispatch Dashboard</h2>
                 <p className="panel-desc">Real-time coordinator dashboard tracking live incidents, medical dispatch requests, and safety logs.</p>
 
                 <div className="ops-split">
                   {/* Reported Incidents */}
-                  <div className="incidents-history glass-card">
+                  <div className="incidents-history glass-card" role="region" aria-label="Active incidents list log">
                     <h3>Reported Incidents Log</h3>
-                    <div className="incidents-list">
+                    <div className="incidents-list" role="log" aria-label="Operations live incident feeds log" aria-live="polite">
                       {operationsIncidents.map((inc) => {
                         const config = INCIDENT_CATEGORY_CONFIG[inc.category];
                         return (
-                          <div key={inc.id} className={`incident-item ${inc.severity}`}>
+                          <div key={inc.id} className={`incident-item ${inc.severity}`} role="article" aria-label={`Incident ${inc.id}: ${inc.severity} severity ${inc.category}`}>
                             <div className="inc-header">
-                              <span className="inc-emoji">{config?.iconEmoji ?? "⚠️"}</span>
+                              <span className="inc-emoji" aria-hidden="true">{config?.iconEmoji ?? "⚠️"}</span>
                               <h4>{config?.label ?? inc.category.toUpperCase()}</h4>
                               <span className={`inc-severity-label ${inc.severity}`}>{inc.severity.toUpperCase()}</span>
                             </div>

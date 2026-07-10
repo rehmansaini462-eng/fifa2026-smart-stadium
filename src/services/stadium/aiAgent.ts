@@ -271,12 +271,17 @@ Stadium operational status: ${JSON.stringify(venueTokens)}.
 Answer the user query accurately in their language. Be brief, professional, and clear.
 `;
 
+  // Implement AbortController timeout to prevent external API latency spikes
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 2500);
+
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           contents: [
             ...history.map((h) => ({
@@ -299,6 +304,8 @@ Answer the user query accurately in their language. Be brief, professional, and 
       },
     );
 
+    clearTimeout(timeoutId);
+
     const data: unknown = await response.json();
     if (!data || typeof data !== "object") return null;
 
@@ -311,7 +318,9 @@ Answer the user query accurately in their language. Be brief, professional, and 
 
     const reply = candidates?.[0]?.content?.parts?.[0]?.text;
     return reply ?? null;
-  } catch {
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.warn("Gemini API call timed out or failed. Falling back to local Operations Lookup Engine.", error);
     return null;
   }
 }
