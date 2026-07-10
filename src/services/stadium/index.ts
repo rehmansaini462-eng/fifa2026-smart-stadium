@@ -1,0 +1,62 @@
+/**
+ * @module stadium/index
+ * Barrel export for the stadium services module.
+ * Clean public API — consumers import from '@/services/stadium'.
+ */
+
+export type {
+  GeoCoordinate,
+  StadiumCoordinate,
+  StadiumLevel,
+  NavigationNodeKind,
+  NavigationNode,
+  NavigationRoute,
+  SupportedLanguage,
+  MultilingualString,
+  CrowdDensityLevel,
+  CrowdThreshold,
+  AlertPriority,
+  SectionOccupancy,
+  TransportMode,
+  TransportStatus,
+  TransportUpdate,
+  ParkingLot,
+  AccessibilityFeature,
+  AccessibilityConfig,
+  SustainabilityMetricKind,
+  SustainabilityMetric,
+  HostCountry,
+  StadiumVenue,
+  MatchPhase,
+  MatchEvent,
+  IncidentCategory,
+  IncidentSeverity,
+  IncidentStatus,
+  OperationsIncident,
+  StadiumApiAction,
+  StadiumApiRequest,
+  StadiumApiPayload,
+  StadiumApiResponse,
+  ChatMessage,
+} from "./types";
+
+export {
+  CROWD_THRESHOLD_MAP,
+  resolveCrowdDensity,
+  ALERT_PRIORITY_CONFIG,
+  NAVIGATION_NODE_CONFIG,
+  LANGUAGE_CONFIG,
+  UI_LABELS,
+  TRANSPORT_MODE_CONFIG,
+  TRANSPORT_STATUS_CONFIG,
+  ACCESSIBILITY_FEATURE_CONFIG,
+  SUSTAINABILITY_METRIC_CONFIG,
+  INCIDENT_CATEGORY_CONFIG,
+  MATCH_PHASE_CONFIG,
+  FIFA_2026_VENUES,
+  SAMPLE_MATCHES,
+  resolveVenueById,
+  resolveMatchById,
+  resolveVenuesByCountry,
+  resolveLabel,
+} from "./operationMatrix";
