@@ -2,6 +2,8 @@
 
 StadiumIQ is a GenAI-enabled, high-performance web platform built to optimize stadium operations, enhance the tournament experience for fans, organizers, volunteers, and venue staff, and automate real-time decision-making during the **FIFA World Cup 2026**.
 
+**🌐 Live Deployed Application URL:** [https://fifa2026-smart-stadium.vercel.app/stadium](https://fifa2026-smart-stadium.vercel.app/stadium)
+
 ## 🏟️ Chosen Vertical
 **Challenge 4: Smart Stadiums & Tournament Operations**
 Our solution addresses the operational complexities and fan engagement challenges of managing massive crowd flows, real-time safety, multilingual assistance, accessibility routing, dynamic transportation coordination, and sustainability tracking across all **16 host venues** in the US, Mexico, and Canada.
@@ -71,6 +73,12 @@ npm run build
 # Run ESLint validation
 npm run lint
 ```
+
+## ⚙️ How the Solution Works
+
+StadiumIQ coordinates real-time stadium dynamics through a two-layered engine:
+1. **GenAI Intent Parser**: Incoming fan or coordinator queries are first analyzed by the local regex dispatcher inside [aiAgent.ts](file:///d:/PROMPT%20WARS%20VIRTUAL%20PROJECTS/%5BChallenge%204%5D%20Smart%20Stadiums%20&%20Tournament%20Operations/stadium-iq/src/services/stadium/aiAgent.ts) to classify intent (e.g., emergency, navigation). If a `GEMINI_API_KEY` is present, it forwards the query to the live Gemini API with a strict **2.5s timeout** wrapper. If the request times out or the key is missing, it instantly falls back to the high-speed offline local rules system.
+2. **Deterministic Lookup Pipelines**: All operational calculations—such as spatial wayfinding path generation, carbon savings calculations, crowd occupancy indices, and transportation status—are dispatched via typed configurations in [operationMatrix.ts](file:///d:/PROMPT%20WARS%20VIRTUAL%20PROJECTS/%5BChallenge%204%5D%20Smart%20Stadiums%20&%20Tournament%20Operations/stadium-iq/src/services/stadium/operationMatrix.ts) with **O(1) lookup complexity**, preventing complex nested logical routing.
 
 ---
 
